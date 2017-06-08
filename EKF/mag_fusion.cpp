@@ -467,8 +467,14 @@ void Ekf::fuseHeading()
 		// calculate the observed yaw angle
 		if (_control_status.flags.mag_hdg) {
 			if ((_params.mag_field_vertical == 1) || (_params.mag_field_vertical == 2)) {
-				// use the parameter specified yaw angle when on ground if the earth field inclination is too close to vertical
-				measured_hdg = math::radians(_params.mag_yaw_ground);
+				if (!_control_status.flags.in_air) {
+					// use the parameter specified yaw angle when on ground if the earth field inclination is too close to vertical
+					measured_hdg = math::radians(_params.mag_yaw_ground);
+				} else {
+					// use the current heading so that the innovation is zero
+					// this can be used if the yaw variance has become too large
+					measured_hdg = predicted_hdg;
+				}
 			} else {
 				// rotate the magnetometer measurements into earth frame using a zero yaw angle
 				mag_earth_pred = R_to_earth * _mag_sample_delayed.mag;
@@ -550,8 +556,14 @@ void Ekf::fuseHeading()
 		// calculate the observed yaw angle
 		if (_control_status.flags.mag_hdg) {
 			if ((_params.mag_field_vertical == 1) || (_params.mag_field_vertical == 2)) {
-				// use the parameter specified yaw angle when on ground if the earth field inclination is too close to vertical
-				measured_hdg = math::radians(_params.mag_yaw_ground);
+				if (!_control_status.flags.in_air) {
+					// use the parameter specified yaw angle when on ground if the earth field inclination is too close to vertical
+					measured_hdg = math::radians(_params.mag_yaw_ground);
+				} else {
+					// use the current heading so that the innovation is zero
+					// this can be used if the yaw variance has become too large
+					measured_hdg = predicted_hdg;
+				}
 			} else {
 				// rotate the magnetometer measurements into earth frame using a zero yaw angle
 				mag_earth_pred = R_to_earth * _mag_sample_delayed.mag;
